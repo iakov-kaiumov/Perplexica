@@ -1,0 +1,39 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+            fetch-depth: 0
+      - uses: idoberko2/dokku-deploy-github-action@v1.0.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          dokku-user: 'dokku'
+          dokku-host: ${{ secrets.SSH_HOST }}
+          app-name: 'perplexica-backend'
+          remote-branch: 'master'
+          git-push-flags: '--force'
+          ssh-port: ${{ secrets.SSH_PORT }}
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: idoberko2/dokku-deploy-github-action@v1.0.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          dokku-user: 'dokku'
+          dokku-host: ${{ secrets.SSH_HOST }}
+          app-name: 'perplexica-frontend'
+          remote-branch: 'master'
+          git-push-flags: '--force'
+          ssh-port: ${{ secrets.SSH_PORT }}
