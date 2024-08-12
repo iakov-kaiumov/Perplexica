@@ -1,6 +1,7 @@
 FROM node:slim
 
 ARG SEARXNG_API_URL
+ARG OPENAI_API_KEY
 
 WORKDIR /home/perplexica
 
@@ -11,7 +12,18 @@ COPY drizzle.config.ts /home/perplexica/
 COPY package.json /home/perplexica/
 COPY yarn.lock /home/perplexica/
 
-RUN sed -i "s|SEARXNG = \".*\"|SEARXNG = \"${SEARXNG_API_URL}\"|g" /home/perplexica/config.toml
+RUN echo '[GENERAL]\n\
+PORT = 3001\n\
+SIMILARITY_MEASURE = "cosine"\n\
+\n\
+[API_KEYS]\n\
+OPENAI = "'"$OPENAI_API_KEY"'"\n\
+GROQ = ""\n\
+ANTHROPIC = ""\n\
+\n\
+[API_ENDPOINTS]\n\
+SEARXNG = "'"$SEARXNG_API_URL"'"\n\
+OLLAMA = ""' > /home/perplexica/config.toml
 
 RUN mkdir /home/perplexica/data
 
